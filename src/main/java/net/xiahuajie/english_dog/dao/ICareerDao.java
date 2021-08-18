@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
  * 生涯表操作接口
  *
  * @author xiahuajie
- *
  */
 @Repository("careerDao")
 public interface ICareerDao extends JpaRepository<Career, Integer> {

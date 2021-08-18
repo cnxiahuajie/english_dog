@@ -6,14 +6,14 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * 得分表
+ * 积分表
  *
  * @author xiahuajie
  */
-@Entity(name = "score")
-@Table(name = "score")
+@Entity(name = "jifen")
+@Table(name = "jifen")
 @Data
-public class Score {
+public class Jifen {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,15 +23,9 @@ public class Score {
     private Integer userId;
 
     @Column
-    private String batchNumber;
-
-    @Column
-    private String questionType;
-
-    @Column
     private Integer score;
 
     @Column
-    private LocalDateTime createDateTime;
+    private LocalDateTime lastModTime;
 
 }

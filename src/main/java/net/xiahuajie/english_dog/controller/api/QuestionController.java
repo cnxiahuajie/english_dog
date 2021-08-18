@@ -2,16 +2,15 @@ package net.xiahuajie.english_dog.controller.api;
 
 import net.xiahuajie.english_dog.controller.entity.ResponseData;
 import net.xiahuajie.english_dog.entity.Question;
-import net.xiahuajie.english_dog.entity.TestResult;
+import net.xiahuajie.english_dog.entity.User;
 import net.xiahuajie.english_dog.service.QuestionService;
-import net.xiahuajie.english_dog.service.TestResultService;
+import net.xiahuajie.english_dog.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/question")
@@ -20,8 +19,8 @@ public class QuestionController {
     @Resource(name = "questionService")
     private QuestionService questionService;
 
-    @Resource(name = "testResultService")
-    private TestResultService testResultService;
+    @Resource(name = "userService")
+    private UserService userService;
 
     /**
      * 按分页获取题目
@@ -65,33 +64,15 @@ public class QuestionController {
     /**
      * 提交测试
      *
-     * @param questions 题目与答案
+     * @param questions 题目ID与答案
      * @return 测试结果
      */
     @PostMapping("/doQuestions")
     @ResponseBody
-    public ResponseData doQuestions(@RequestBody List<Question> questions) {
-
-        String batchNumber = UUID.randomUUID().toString();
-        List<TestResult> testResults = new ArrayList<>();
-        questions.forEach(item -> {
-            Question question = questionService.findByTitleAndAnswer(item.getTitle(), item.getAnswer());
-            TestResult testResult = new TestResult();
-            testResult.setBatchNumber(batchNumber);
-
-            if (null == question) {
-                question = questionService.findByTitle(item.getTitle());
-                testResult.setResult("F");
-            } else {
-                testResult.setResult("S");
-            }
-            testResult.setQuestionId(question.getId());
-            testResult.setQuestionType(item.getType());
-            testResults.add(testResult);
-        });
-
-        testResultService.saveTestResults(testResults);
-        return ResponseData.ok(testResults);
+    public ResponseData doQuestions(@RequestBody List<Question> questions, Principal principal) {
+        User user = userService.findUserByUsername(principal.getName());
+        String batchNumber = questionService.doQuestions(user.getId(), questions);
+        return ResponseData.ok(batchNumber);
     }
 
 }

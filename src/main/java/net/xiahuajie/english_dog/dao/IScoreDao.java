@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * 积分表操作接口
+ * 得分表操作接口
  *
  * @author xiahuajie
  */
@@ -13,5 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface IScoreDao extends JpaRepository<Score, Integer> {
 
     Score findByUserId(Integer userId);
+
+    Score findByBatchNumber(String batchNumber);
 
 }
