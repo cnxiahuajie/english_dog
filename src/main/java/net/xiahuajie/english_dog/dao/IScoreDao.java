@@ -12,6 +12,10 @@ import org.springframework.stereotype.Repository;
 @Repository("scoreDao")
 public interface IScoreDao extends JpaRepository<Score, Integer> {
 
+    Integer countAllByUserIdEqualsAndScoreIsAfter(Integer userId, Integer score);
+
+    Integer countAllByUserIdEquals(Integer userId);
+
     Score findByUserId(Integer userId);
 
     Score findByBatchNumber(String batchNumber);

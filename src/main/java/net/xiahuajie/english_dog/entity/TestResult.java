@@ -35,6 +35,9 @@ public class TestResult {
     private String questionType;
 
     @Column
+    private String answer;
+
+    @Column
     private String result;
 
     @Column

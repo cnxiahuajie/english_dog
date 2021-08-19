@@ -1,13 +1,7 @@
 package net.xiahuajie.english_dog.service;
 
-import net.xiahuajie.english_dog.dao.IJifenDao;
-import net.xiahuajie.english_dog.dao.IQuestionDao;
-import net.xiahuajie.english_dog.dao.IScoreDao;
-import net.xiahuajie.english_dog.dao.ITestResultDao;
-import net.xiahuajie.english_dog.entity.Jifen;
-import net.xiahuajie.english_dog.entity.Question;
-import net.xiahuajie.english_dog.entity.Score;
-import net.xiahuajie.english_dog.entity.TestResult;
+import net.xiahuajie.english_dog.dao.*;
+import net.xiahuajie.english_dog.entity.*;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,11 +31,18 @@ public class QuestionService {
     @Resource(name = "jifenDao")
     private IJifenDao jifenDao;
 
+    @Resource(name = "careerDao")
+    private ICareerDao careerDao;
+
     private static String FAIL = "F";
 
     private static String SUCC = "S";
 
     private static Integer SINGLE_QUESTION_SCORE = 2;
+
+    public List<Question> findByIds(Set<Integer> ids) {
+        return questionDao.findAllById(ids);
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public String doQuestions(Integer userId, List<Question> questions) {
@@ -49,6 +52,12 @@ public class QuestionService {
 
         // 记录答题结果
         questions.forEach(item -> {
+            // 首字母处理为大写
+            char[] answerChars = item.getAnswer().toCharArray();
+            if (Character.isLowerCase(answerChars[0])) {
+                answerChars[0] = Character.toUpperCase(answerChars[0]);
+                item.setAnswer(new String(answerChars));
+            }
             Question question = questionDao.findByIdAndAnswer(item.getId(), item.getAnswer());
             TestResult testResult = new TestResult();
             testResult.setBatchNumber(batchNumber);
@@ -67,6 +76,7 @@ public class QuestionService {
             }
             testResult.setUserId(userId);
             testResult.setQuestionId(question.getId());
+            testResult.setAnswer(item.getAnswer());
             testResult.setQuestionType(item.getType());
             testResult.setQuestionType(question.getType());
             testResult.setCreateDateTime(createDateTime);
@@ -101,6 +111,14 @@ public class QuestionService {
         jifen.setScore(jifenInteger);
         jifen.setLastModTime(createDateTime);
         jifenDao.save(jifen);
+
+        // 记录生涯信息
+        Career career = careerDao.findByUserId(userId);
+        career.setTestCount(career.getTestCount() + 1);
+        Integer scoreCount = scoreDao.countAllByUserIdEquals(userId);
+        Integer scoreCountAfter50 = scoreDao.countAllByUserIdEqualsAndScoreIsAfter(userId, 50);
+        career.setPassRate(BigDecimal.valueOf(scoreCountAfter50).divide(BigDecimal.valueOf(scoreCount), 2, RoundingMode.UP).multiply(BigDecimal.valueOf(100)));
+        careerDao.save(career);
 
         return batchNumber;
     }

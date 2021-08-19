@@ -20,6 +20,6 @@ public interface ITestResultDao extends JpaRepository<TestResult, Integer> {
      * @param batchNumber 批次号
      * @return 测试结果
      */
-    List<TestResult> findByBatchNumber(String batchNumber);
+    List<TestResult> findByBatchNumberAndResultEquals(String batchNumber, String result);
 
 }

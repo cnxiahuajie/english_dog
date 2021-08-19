@@ -22,6 +22,9 @@ public class Career {
     @Column
     private Integer userId;
 
+    /**
+     * 学习时长-分钟
+     */
     @Column
     private Integer learnDuration;
 

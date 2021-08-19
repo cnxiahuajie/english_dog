@@ -24,10 +24,7 @@ public class CareerService {
 
     public Career findByUsername(String username) {
         User user = userDao.findByUsername(username);
-        if (null != user) {
-            return careerDao.findByUserId(user.getId());
-        }
-        return null;
+        return careerDao.findByUserId(user.getId());
     }
 
 }
